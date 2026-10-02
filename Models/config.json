@@ -1,0 +1,108 @@
+{
+  "threshold": 0.35000000000000003,
+  "features": [
+    "Machine_Type",
+    "Operational_Hours",
+    "Temperature_C",
+    "Vibration_mms",
+    "Sound_dB",
+    "Oil_Level_pct",
+    "Coolant_Level_pct",
+    "Power_Consumption_kW",
+    "Last_Maintenance_Days_Ago",
+    "Maintenance_History_Count",
+    "Failure_History_Count",
+    "AI_Supervision",
+    "Error_Codes_Last_30_Days",
+    "Machine_Age"
+  ],
+  "machine_types": [
+    "3D_Printer",
+    "AGV",
+    "Automated_Screwdriver",
+    "Boiler",
+    "CMM",
+    "CNC_Lathe",
+    "CNC_Mill",
+    "Carton_Former",
+    "Compressor",
+    "Conveyor_Belt",
+    "Crane",
+    "Dryer",
+    "Forklift_Electric",
+    "Furnace",
+    "Grinder",
+    "Heat_Exchanger",
+    "Hydraulic_Press",
+    "Industrial_Chiller",
+    "Injection_Molder",
+    "Labeler",
+    "Laser_Cutter",
+    "Mixer",
+    "Palletizer",
+    "Pick_and_Place",
+    "Press_Brake",
+    "Pump",
+    "Robot_Arm",
+    "Shrink_Wrapper",
+    "Shuttle_System",
+    "Vacuum_Packer",
+    "Valve_Controller",
+    "Vision_System",
+    "XRay_Inspector"
+  ],
+  "ranges": {
+    "Operational_Hours": [
+      0.0,
+      100000.0
+    ],
+    "Temperature_C": [
+      0.07,
+      125.12
+    ],
+    "Vibration_mms": [
+      0.0,
+      32.47
+    ],
+    "Sound_dB": [
+      23.65,
+      120.7
+    ],
+    "Oil_Level_pct": [
+      0.0,
+      100.0
+    ],
+    "Coolant_Level_pct": [
+      0.0,
+      100.0
+    ],
+    "Power_Consumption_kW": [
+      0.0,
+      510.7
+    ],
+    "Last_Maintenance_Days_Ago": [
+      0.0,
+      365.0
+    ],
+    "Maintenance_History_Count": [
+      0.0,
+      18.0
+    ],
+    "Failure_History_Count": [
+      0.0,
+      12.0
+    ],
+    "AI_Supervision": [
+      0.0,
+      1.0
+    ],
+    "Error_Codes_Last_30_Days": [
+      0.0,
+      13.0
+    ],
+    "Machine_Age": [
+      0.0,
+      26.0
+    ]
+  }
+}

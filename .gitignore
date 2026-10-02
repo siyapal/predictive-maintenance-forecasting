@@ -1,0 +1,10 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+machines.db
+.env
+.claude/
+.rocketride/
+.vscode/
+.ipynb_checkpoints/
