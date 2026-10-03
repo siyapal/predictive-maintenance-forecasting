@@ -15,7 +15,7 @@ from pydantic import BaseModel
 
 ROOT = Path(__file__).resolve().parent.parent
 MODELS_DIR = next(p for p in ROOT.iterdir() if p.is_dir() and p.name.lower() == "models")
-DB_PATH = ROOT / "machines.db"
+DB_PATH = Path(os.environ.get("DB_PATH", ROOT / "machines.db"))
 
 model = joblib.load(MODELS_DIR / "model.pkl")
 with open(MODELS_DIR / "config.json") as f:
@@ -106,6 +106,50 @@ def run_model(features: dict) -> dict:
             "failure_within_7_days": prob >= THRESHOLD,
             "risk_level": level,
             "predicted_rul_days": None if rul is None else round(rul, 3)}
+
+
+def seed_demo_data(n=300):
+    """On a fresh server (empty database) load n real machines from the dataset and store one prediction each.
+    Needed on hosts like Render free tier where the database file is wiped on every restart."""
+    with db() as con:
+        if con.execute("SELECT COUNT(*) FROM predictions").fetchone()[0] > 0:
+            return
+    try:
+        data_dir = next(p for p in ROOT.iterdir() if p.is_dir() and p.name.lower() == "data")
+        raw = next(data_dir.rglob("factory_sensor_data.csv.csv"))
+        cleaned = next(data_dir.rglob("cleaned_data.csv"))
+        ids = pd.read_csv(raw, usecols=["Machine_ID"])["Machine_ID"]
+        clean = pd.read_csv(cleaned, usecols=config["features"])
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with db() as con:
+            for i in clean.sample(n, random_state=42).index:
+                feats = json.loads(clean.loc[[i], config["features"]].to_json(orient="records"))[0]
+                res = run_model(feats)
+                code = str(ids[i])
+                con.execute("INSERT OR REPLACE INTO machines VALUES (?, ?)", (code, json.dumps(feats)))
+                con.execute("""INSERT INTO predictions (machine_code, predicted_rul_days, failure_probability,
+                               failure_within_7_days, risk_level, created_at) VALUES (?,?,?,?,?,?)""",
+                            (code, res["predicted_rul_days"], res["failure_probability"],
+                             int(res["failure_within_7_days"]), res["risk_level"], now))
+        print(f"Seeded {n} demo machines")
+    except Exception as e:  # never stop the server because of seeding
+        print("Seeding skipped:", e)
+
+
+def ensure_demo_user():
+    """Public demo account so visitors can log in even after the free server restarts."""
+    with db() as con:
+        if not con.execute("SELECT 1 FROM users WHERE username = 'demo'").fetchone():
+            con.execute("INSERT INTO users VALUES (?, ?)", ("demo", _hash("demo123")))
+
+
+seed_demo_data()
+ensure_demo_user()
+
+
+@app.get("/")
+def root():
+    return {"status": "ok"}
 
 
 @app.get("/config")

@@ -2,11 +2,17 @@
 Then:  streamlit run Dashboard/dasboard.py"""
 from datetime import datetime
 
+import os
+
 import pandas as pd
 import requests
 import streamlit as st
 
-API = "http://127.0.0.1:8000"
+# Backend URL: Streamlit Cloud secret API_URL, or env var, or local default.
+try:
+    API = st.secrets["API_URL"].rstrip("/")
+except Exception:
+    API = os.environ.get("API_URL", "http://127.0.0.1:8000").rstrip("/")
 st.set_page_config(page_title="Predictive Maintenance", page_icon="🛠️", layout="wide")
 
 st.markdown("""<style>
@@ -32,8 +38,10 @@ if st.session_state.user is None:
         with tab_login:
             lu = st.text_input("Username", key="lu")
             lp = st.text_input("Password", type="password", key="lp")
+            st.caption("Demo account: username `demo`, password `demo123`")
             if st.button("Login", type="primary"):
-                r = requests.post(f"{API}/login", json={"username": lu, "password": lp}, timeout=30)
+                with st.spinner("Server start ho raha hai, 1 minute tak lag sakta hai..."):
+                    r = requests.post(f"{API}/login", json={"username": lu, "password": lp}, timeout=90)
                 if r.ok:
                     st.session_state.user = lu.strip()
                     st.rerun()
@@ -43,7 +51,7 @@ if st.session_state.user is None:
             su = st.text_input("Choose username", key="su")
             sp = st.text_input("Choose password", type="password", key="sp")
             if st.button("Create account"):
-                r = requests.post(f"{API}/register", json={"username": su, "password": sp}, timeout=30)
+                r = requests.post(f"{API}/register", json={"username": su, "password": sp}, timeout=90)
                 if r.ok:
                     st.success("Account ban gaya, ab Login tab se login karo.")
                 else:
@@ -59,7 +67,7 @@ st.markdown('<div class="hero"><h1>🛠️ Predictive Maintenance and Failure Fo
 
 
 def api(method, path, **kw):
-    r = requests.request(method, API + path, timeout=30, **kw)
+    r = requests.request(method, API + path, timeout=90, **kw)
     r.raise_for_status()
     return r.json()
 
